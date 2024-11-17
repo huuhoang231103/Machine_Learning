@@ -1,0 +1,54 @@
+item_id,tên,loại,độ_hiếm,sức_công,phòng_thủ,kháng_phép,giá,yếu_tố,độ_bền,độ_khó_chế_tạo,đánh_giá_của_người_chơi,tần_suất_sử_dụng,điểm_số_meta
+1,Kiếm của Valor,Vũ khí,Huyền thoại,85,20,10,500,Vật lý,90,Cao,4.7,0.75,92
+2,Shield Aegis,Giáp,Huyền ảo,15,90,40,450,Bảo vệ,85,Trung bình,4.5,0.65,88
+3,Sách Ma Thuật Arcane,Ma thuật,Huyền bí,60,30,75,600,Ma thuật,75,Rất cao,4.8,0.55,95
+4,Cung Thunderbolt,Tầm xa,Huyền ảo,70,25,20,350,Yếu tố,80,Thấp,4.2,0.45,82
+5,Giáp Vảy Rồng,Giáp,Huyền thoại,30,95,50,750,Bảo vệ,95,Rất cao,4.9,0.80,96
+6,Kiếm Lưỡi Lửa,Vũ khí,Huyền ảo,90,15,5,600,Lửa,80,Trung bình,4.6,0.70,90
+7,Shield Băng,Rất hiếm,Giáp,10,85,50,400,Băng,75,Thấp,4.3,0.60,85
+8,Cán Ma Thuật,Ma thuật,Huyền thoại,50,20,80,700,Ma thuật,90,Cao,4.9,0.50,94
+9,Crossbow Chính Xác,Tầm xa,Huyền ảo,75,10,15,550,Vật lý,70,Trung bình,4.4,0.55,89
+10,Giáp Plate,Rất hiếm,Giáp,5,100,20,500,Bảo vệ,85,Trung bình,4.2,0.65,83
+11,Dagger Bóng,Tầm xa,Huyền bí,80,5,10,650,Tối,60,Cao,4.8,0.40,91
+12,Rìu Chiến,Vũ khí,Huyền ảo,95,10,5,600,Vật lý,75,Trung bình,4.5,0.50,87
+13,Áo Robe của Archmage,Ma thuật,Huyền thoại,20,5,100,800,Ma thuật,70,Rất cao,4.9,0.45,93
+14,Găng Tay Sức Mạnh,Rất hiếm,Giáp,0,30,0,300,Vật lý,80,Thấp,4.3,0.55,86
+15,Trident của Biển,Vũ khí,Huyền thoại,70,15,25,700,Nước,85,Cao,4.7,0.60,92
+16,Mũ Insight,Giáp,Huyền ảo,0,10,60,400,Ma thuật,90,Trung bình,4.6,0.50,88
+17,Cung Dài của Rừng,Tầm xa,Rất hiếm,65,5,15,350,Yếu tố,75,Thấp,4.2,0.55,84
+18,Shields của Tổ Tiên,Giáp,Huyền bí,5,95,45,750,Bảo vệ,85,Rất cao,4.8,0.70,95
+19,Sách Ma Thuật Bóng,Tầm xa,Huyền thoại,30,5,90,650,Tối,70,Cao,4.9,0.40,90
+20,Rìu Chiến của Titan,Vũ khí,Huyền bí,100,20,10,800,Vật lý,80,Rất cao,4.9,0.50,94
+21,Giáp Da,Giáp,Phổ biến,5,15,5,200,Vật lý,60,Thấp,3.5,0.75,70
+22,Shields Sắt,Giáp,Phổ biến,0,20,0,150,Bảo vệ,50,Thấp,3.0,0.80,65
+23,Cán Gỗ,Ma thuật,Phổ biến,5,0,10,100,Yếu tố,40,Th ấp,3.2,0.70,68
+24,Kiếm Ngắn, Vũ khí, Phổ biến, 15, 0, 0, 120, Vật lý, 30, Thấp, 3.3, 0.85, 72
+25,Crossbow, Vũ khí, Phổ biến, 20, 0, 0, 150, Vật lý, 40, Thấp, 3.4, 0.80, 75
+26,Giáp Dây, Giáp, Không phổ biến, 10, 50, 5, 300, Bảo vệ, 70, Trung bình, 4.0, 0.60, 78
+27,Shields Thép, Giáp, Không phổ biến, 0, 30, 0, 250, Bảo vệ, 60, Trung bình, 4.1, 0.65, 80
+28,Cán Lửa, Ma thuật, Không phổ biến, 25, 0, 15, 200, Lửa, 50, Trung bình, 4.0, 0.55, 76
+29,Kiếm Dài, Vũ khí, Không phổ biến, 30, 0, 0, 180, Vật lý, 40, Trung bình, 4.2, 0.70, 77
+30,Giáp Plate Nặng, Giáp, Rất hiếm, 10, 80, 10, 400, Bảo vệ, 90, Cao, 4.4, 0.50, 82
+31,Cán Ma Thuật, Ma thuật, Rất hiếm, 15, 0, 20, 300, Ma thuật, 60, Trung bình, 4.3, 0.65, 81
+32,Rìu Lớn, Vũ khí, Rất hiếm, 85, 5, 5, 500, Vật lý, 70, Trung bình, 4.5, 0.55, 84
+33,Cung Elven, Tầm xa, Rất hiếm, 70, 0, 10, 400, Yếu tố, 75, Trung bình, 4.6, 0.60, 83
+34,Shields Pha Lê, Giáp, Huyền thoại, 0, 90, 50, 600, Ma thuật, 80, Cao, 4.8, 0.70, 89
+35,Cán Bóng Lửa, Ma thuật, Huyền bí, 40, 0, 30, 700, Lửa, 90, Rất cao, 4.9, 0.50, 92
+36,Giáp Gai, Giáp, Huyền ảo, 5, 70, 15, 500, Bảo vệ, 85, Trung bình, 4.7, 0.65, 88
+37,Kiếm của Tổ Tiên, Vũ khí, Huyền thoại, 95, 10, 5, 800, Vật lý, 90, Rất cao, 4.9, 0.55, 91
+38,Shields Valor, Giáp, Huyền ảo, 0, 85, 40, 450, Bảo vệ, 75, Trung bình, 4.6, 0.60, 87
+39,Amulet của Sức Mạnh, Ma thuật, Huyền bí, 0, 0, 100, 900, Ma thuật, 100, Rất cao, 5.0, 0.40, 95
+40,Găng Tay Chiến Binh, Giáp, Rất hiếm, 0, 25, 0, 350, Vật lý, 80, Trung bình, 4.4, 0.55, 82
+41,Scimitar, Vũ khí, Không phổ biến, 40, 0, 0, 200, Vật lý, 50, Thấp, 3.8, 0.70, 74
+42,Giày Da, Giáp, Phổ biến, 0, 5, 0, 100, Vật lý, 30, Thấp, 3.2, 0.80, 66
+43,Cloak Chống Lửa, Giáp, Không phổ biến, 0, 10, 10, 250, Lửa, 60, Trung bình, 4.0, 0.65, 79
+44,Cán Hồi Phục, Ma thuật, Huyền thoại, 0, 0, 90, 800, Ma thuật, 70, Rất cao, 4.9, 0.50, 93
+45,Shields Chiến Binh, Giáp, Rất hiếm, 0, 40, 0, 400, Bảo vệ, 70, Trung bình, 4.5, 0.60, 85
+46,Cung Dài, Vũ khí, Phổ biến, 25, 0, 0, 150, Vật lý, 40, Thấp, 3.5, 0.75, 71
+47,Robe Ma Thuật, Giáp, Không phổ biến, 0, 5, 20, 300, Ma thuật, 50, Trung bình, 4.1, 0.65, 78
+48,Kiếm Băng, Vũ khí, Huyền ảo, 80, 0, 10, 600, Băng, 80, Cao, 4.7, 0.55, 90
+49,Shields của Các Yếu Tố, Giáp, Huyền bí, 0, 100, 50, 900, Yếu tố, 90, Rất cao, 5.0, 0.40, 96
+50,Cán Bão, Ma thuật, Huyền thoại, 50, 0, 80, 700, Yếu tố, 80, Cao, 4.8, 0.50, 94
+51,Găng Tay Khéo Léo, Giáp, Rất hiếm, 0, 10, 0, 300, Vật lý, 60, Trung bình, 4.3, 0.55, 81
+52,Bracers Bảo Vệ, Giáp, Không phổ biến, 0, 15, 0, 200, Bảo vệ, 50, Thấp, 3.9, 0.70, 73
+53,Cung Phép Thuật, Tầm xa, Huyền thoại, 75, 0, 20, 800, Ma thuật, 90, Rất cao, 4.9, 0.50, 92

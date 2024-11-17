@@ -1,0 +1,21 @@
+Khoảng cách,Máu quái vật,Máu người chơi,Tìm kiếm người chơi,Hành động người chơi,Loại quái vật,Thời gian,Chướng ngại vật,Hiệu ứng bất lợi,Số lượng người chơi so với quái vật,Tốc độ,Vũ khí,Khả năng né tránh,Chỉ số tinh thần,Hành động của quái vật
+Gần,Cao,Cao,Luôn luôn đi tìm,Tấn công,Chiến binh,Sáng,Không,Không,Ít hơn hoặc bằng,Nhanh,Kiếm,Cao,Tự tin,Tấn công
+Xa,Thấp,Thấp,Không tìm kiếm,Hồi máu,Cung thủ,Tối,Có,Bốc cháy,Nhiều hơn,Chậm,Cung,Thấp,Hoảng sợ,Rút lui
+Rất xa,Cao,Cao,Luôn luôn đi tìm,Phòng thủ,Pháp sư,Sáng,Không,Độc tố,Ít hơn hoặc bằng,Trung bình,Phép thuật,Trung bình,Bình tĩnh,Tấn công
+Gần,Thấp,Thấp,Không tìm kiếm,Tấn công,Pháp sư,Sáng,Có,Choáng,Nhiều hơn,Trung bình,Không vũ khí,Thấp,Hoảng sợ,Rút lui
+Gần,Cao,Thấp,Luôn luôn đi tìm,Sử dụng kỹ năng đặc biệt,Chiến binh,Tối,Không,Đóng băng,Ít hơn hoặc bằng,Nhanh,Kiếm,Cao,Tự tin,Tấn công
+Xa,Thấp,Cao,Luôn luôn đi tìm,Hồi máu,Cung thủ,Sáng,Có,Độc tố,Nhiều hơn,Chậm,Cung,Thấp,Hoảng sợ,Rút lui
+Xa,Trung bình,Trung bình,Không tìm kiếm,Phòng thủ,Quái vật cận chiến,Tối,Không,Không,Ít hơn hoặc bằng,Trung bình,Không vũ khí,Trung bình,Bình tĩnh,Tấn công
+Gần,Cao,Cao,Luôn luôn đi tìm,Tấn công,Chiến binh,Sáng,Không,Không,Nhiều hơn,Nhanh,Kiếm,Cao,Tự tin,Tấn công
+Xa,Thấp,Thấp,Luôn luôn đi tìm,Hồi máu,Quái vật phép thuật,Tối,Có,Kiệt sức,Nhiều hơn,Chậm,Phép thuật,Thấp,Hoảng sợ,Rút lui
+Rất xa,Thấp,Cao,Không tìm kiếm,Tấn công,Pháp sư,Sáng,Có,Độc tố,Ít hơn hoặc bằng,Trung bình,Phép thuật,Cao,Bình tĩnh,Tấn công
+Gần,Thấp,Trung bình,Không tìm kiếm,Phòng thủ,Cung thủ,Sáng,Có,Choáng,Ít hơn hoặc bằng,Chậm,Cung,Trung bình,Hoảng sợ,Rút lui
+Xa,Cao,Cao,Luôn luôn đi tìm,Tấn công,Chiến binh,Tối,Không,Không,Nhiều hơn,Trung bình,Kiếm,Cao,Tự tin,Tấn công
+Xa,Trung bình,Thấp,Luôn luôn đi tìm,Tấn công,Quái vật cận chiến,Sáng,Không,Bốc cháy,Ít hơn hoặc bằng,Nhanh,Không vũ khí,Cao,Bình tĩnh,Tấn công
+Gần,Cao,Cao,Không tìm kiếm,Tấn công,Pháp sư,Tối,Có,Độc tố,Nhiều hơn,Trung bình,Phép thuật,Thấp,Hoảng sợ,Rút lui
+Rất xa,Thấp,Trung bình,Luôn luôn đi tìm,Phòng thủ,Cung thủ,Sáng,Không,Đóng băng,Ít hơn hoặc bằng,Chậm,Cung,Thấp,Bình tĩnh,Rút lui
+Gần,Thấp,Cao,Không tìm kiếm,Tấn công,Quái vật phép thuật,Tối,Có,Kiệt sức,Nhiều hơn,Trung bình,Phép thuật,Thấp,Hoảng sợ,Rút lui
+Xa,Cao,Thấp,Luôn luôn đi tìm,Hồi máu,Chiến binh,Sáng,Không,Không,Ít hơn hoặc bằng,Nhanh,Kiếm,Cao,Tự tin,Tấn công
+Rất xa,Trung bình,Trung bình,Không tìm kiếm,Phòng thủ,Quái vật cận chiến,Sáng,Không,Độc tố,Nhiều hơn,Chậm,Không vũ khí,Trung bình,Bình tĩnh,Rút lui
+Gần,Thấp,Thấp,Luôn luôn đi tìm,Tấn công,Cung thủ,Tối,Có,Choáng,Ít hơn hoặc bằng,Chậm,Cung,Thấp,Hoảng sợ,Rút lui
+Xa,Thấp,Cao,Không tìm kiếm,Hồi máu,Pháp sư,Sáng,Có,Kiệt sức,Nhiều hơn,Trung bình,Phép thuật,Trung bình,Bình tĩnh,Rút lui
