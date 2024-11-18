@@ -16,19 +16,25 @@ Welcome to the **Machine Learning** project! This repository implements machine 
 ## Libraries Used
 
 This project utilizes the following Python libraries:
-
-## python
+- **import**
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score, f1_score, mean_squared_error, confusion_matrix
+from sklearn.metrics import (
+    classification_report, 
+    accuracy_score, 
+    f1_score, 
+    mean_squared_error, 
+    confusion_matrix
+)
 import seaborn as sns
 import matplotlib.pyplot as plt
 import time
 import warnings
+
 
 # How to run
 1. git clone https://github.com/huuhoang231103/Machine_Learning.git
