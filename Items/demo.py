@@ -295,6 +295,12 @@ class EnhancedRecommendationApp:
         right_panel = ttk.Frame(main_container)
         right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
+        ttk.Button(
+            button_frame,
+            text="📊 Phân Tích Đặc Trưng",
+            command=self.analyze_feature_importance
+        ).pack(fill='x', pady=5)
+
         # Accuracy display
         ttk.Label(
             right_panel,
@@ -740,38 +746,6 @@ class EnhancedRecommendationApp:
             ttk.Label(row, text=metric, width=30, font=('Helvetica', 10, 'bold')).pack(side='left')
             ttk.Label(row, text=str(value), width=30).pack(side='left')
     
-        # Tab 3: Trọng số đặc trưng
-        weights_frame = ttk.Frame(notebook)
-        notebook.add(weights_frame, text="Trọng Số Đặc Trưng")
-    
-        feature_weights = {
-            "Sức công": 0.25,
-            "Phòng thủ": 0.20,
-            "Kháng phép": 0.20,
-            "Giá": 0.15,
-            "Độ bền": 0.20
-        }
-    
-        fig = Figure(figsize=(8, 6))
-        ax = fig.add_subplot(111)
-    
-        features = list(feature_weights.keys())
-        weights = list(feature_weights.values())
-    
-        bars = ax.bar(features, weights)
-        ax.set_title('Trọng Số Các Đặc Trưng')
-        ax.set_ylabel('Trọng số')
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
-    
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{height:.2%}', ha='center', va='bottom')
-    
-        canvas = FigureCanvasTkAgg(fig, master=weights_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill='both', expand=True)
-
     def save_chart(self, figure, default_name):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         default_name = f"{default_name}_{timestamp}"
@@ -970,6 +944,135 @@ class EnhancedRecommendationApp:
             
         except Exception as e:
             messagebox.showerror("Lỗi", f"Không thể tải bảng gợi ý: {str(e)}")
+
+    def analyze_feature_importance(self):
+        analysis_window = tk.Toplevel(self.master)
+        analysis_window.title("Phân Tích Trọng Số Đặc Trưng")
+        analysis_window.geometry("1200x800")
+
+        notebook = ttk.Notebook(analysis_window)
+        notebook.pack(fill='both', expand=True, padx=10, pady=10)
+
+        # 1. Random Forest Feature Importance
+        rf_frame = ttk.Frame(notebook)
+        notebook.add(rf_frame, text="Random Forest")
+
+        features = ['sức_công', 'phòng_thủ', 'kháng_phép', 'giá', 'độ_bền', 
+                    'đánh_giá_của_người_chơi', 'Tần Suất Sử Dụng (Tháng)', 'điểm_số_meta']
+        
+        X = self.recommender.items_df[features]
+        y = self.recommender.popularity_bins
+
+        rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+        rf_model.fit(X, y)
+        rf_importances = rf_model.feature_importances_
+        rf_weights = dict(zip(features, rf_importances / rf_importances.sum()))
+
+        fig1 = Figure(figsize=(10, 6))
+        ax1 = fig1.add_subplot(111)
+        sorted_rf = dict(sorted(rf_weights.items(), key=lambda x: x[1], reverse=True))
+        ax1.barh(list(sorted_rf.keys()), list(sorted_rf.values()), color='skyblue')
+        ax1.set_title('Trọng Số Đặc Trưng (Random Forest)')
+        ax1.set_xlabel('Trọng Số (%)')  # Thêm đơn vị
+        for i, v in enumerate(sorted_rf.values()):
+            ax1.text(v, i, f'{v:.2%}', va='center')
+
+        canvas1 = FigureCanvasTkAgg(fig1, master=rf_frame)
+        canvas1.draw()
+        canvas1.get_tk_widget().pack(fill='both', expand=True)
+
+        # 2. Correlation Analysis
+        corr_frame = ttk.Frame(notebook)
+        notebook.add(corr_frame, text="Phân Tích Tương Quan")
+
+        correlations = X.corrwith(self.recommender.items_df['popularity_score']).abs()
+        corr_weights = dict(zip(features, correlations / correlations.sum()))
+
+        fig2 = Figure(figsize=(10, 6))
+        ax2 = fig2.add_subplot(111)
+        sorted_corr = dict(sorted(corr_weights.items(), key=lambda x: x[1], reverse=True))
+        ax2.barh(list(sorted_corr.keys()), list(sorted_corr.values()), color='lightgreen')
+        ax2.set_title('Mức Độ Tương Quan Với Popularity Score')
+        ax2.set_xlabel('Mức Độ Tương Quan (%)')  # Thêm đơn vị
+        for i, v in enumerate(sorted_corr.values()):
+            ax2.text(v, i, f'{v:.2%}', va='center')
+
+        canvas2 = FigureCanvasTkAgg(fig2, master=corr_frame)
+        canvas2.draw()
+        canvas2.get_tk_widget().pack(fill='both', expand=True)
+
+        # 3. Feature Impact Analysis
+        impact_frame = ttk.Frame(notebook)
+        notebook.add(impact_frame, text="Phân Tích Tác Động")
+
+        impacts = {}
+        for feature in features:
+            std = self.recommender.items_df[feature].std()
+            mean = self.recommender.items_df[feature].mean()
+            cv = std / mean if mean != 0 else 0
+            impacts[feature] = cv
+
+        total_impact = sum(impacts.values())
+        impact_weights = {k: v/total_impact for k, v in impacts.items()}
+
+        fig3 = Figure(figsize=(10, 6))
+        ax3 = fig3.add_subplot(111)
+        sorted_impact = dict(sorted(impact_weights.items(), key=lambda x: x[1], reverse=True))
+        ax3.barh(list(sorted_impact.keys()), list(sorted_impact.values()), color='salmon')
+        ax3.set_title('Mức Độ Biến Thiên Của Các Đặc Trưng')
+        ax3.set_xlabel('Độ Biến Thiên (%)')  # Thêm đơn vị
+        for i, v in enumerate(sorted_impact.values()):
+            ax3.text(v, i, f'{v:.2%}', va='center')
+
+        canvas3 = FigureCanvasTkAgg(fig3, master=impact_frame)
+        canvas3.draw()
+        canvas3.get_tk_widget().pack(fill='both', expand=True)
+
+        # 4. Summary Table
+        summary_frame = ttk.Frame(notebook)
+        notebook.add(summary_frame, text="Bảng Tổng Hợp")
+
+        columns = ('Đặc trưng', 'RF Score', 'Correlation', 'Impact Score', 'Avg Weight')
+        tree = ttk.Treeview(summary_frame, columns=columns, show='headings')
+        
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, width=150)
+
+        for feature in features:
+            avg_weight = (rf_weights[feature] + corr_weights[feature] + impact_weights[feature]) / 3
+            tree.insert('', 'end', values=(
+                feature,
+                f'{rf_weights[feature]:.2%}',
+                f'{corr_weights[feature]:.2%}',
+                f'{impact_weights[feature]:.2%}',
+                f'{avg_weight:.2%}'
+            ))
+
+        tree.pack(fill='both', expand=True, padx=10, pady=10)
+
+        # Buttons
+        btn_frame = ttk.Frame(analysis_window)
+        btn_frame.pack(fill='x', padx=10, pady=5)
+
+        ttk.Button(
+            btn_frame, 
+            text="Xuất PDF", 
+            command=lambda: self.export_analysis_pdf(
+                [fig1, fig2, fig3], 
+                tree, 
+                "feature_importance_analysis.pdf"
+            )
+        ).pack(side='left', padx=5)
+
+        ttk.Button(
+            btn_frame,
+            text="Lưu Biểu Đồ",
+            command=lambda: self.save_analysis_charts([fig1, fig2, fig3])
+        ).pack(side='left', padx=5)
+
+        return analysis_window
+
 
 
     def update_model_parameters(self):
