@@ -16,24 +16,19 @@ Welcome to the **Machine Learning** project! This repository implements machine 
 ## Libraries Used
 
 This project utilizes the following Python libraries:
-- **import**
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    classification_report, 
-    accuracy_score, 
-    f1_score, 
-    mean_squared_error, 
-    confusion_matrix
-)
-import seaborn as sns
-import matplotlib.pyplot as plt
-import time
-import warnings
+## Requirements
+- `pandas`
+- `numpy`
+- `sklearn.model_selection`
+- `sklearn.preprocessing`
+- `sklearn.tree`
+- `sklearn.ensemble`
+- `sklearn.metrics`
+- `seaborn`
+- `matplotlib.pyplot`
+- `time`
+- `warnings`
+
 
 
 # How to run
