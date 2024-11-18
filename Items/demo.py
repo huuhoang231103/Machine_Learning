@@ -1,21 +1,30 @@
+# Data processing & analysis
 import pandas as pd
 import numpy as np
-import tkinter as tk
-from tkinter import messagebox, ttk
+
+# ML & Analytics
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Visualization
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+# GUI & System
+import tkinter as tk
+from tkinter import messagebox, ttk
 import json
 from datetime import datetime
 import os
 import glob
 
+# Class 1: Model
 class EnhancedItemRecommendationSystem:
+    # Core Setup
     def __init__(self, items_path='game_items.csv', usage_path='usage.csv'):
         try:
             self.items_df = self.load_and_merge_data(items_path, usage_path)
@@ -25,7 +34,8 @@ class EnhancedItemRecommendationSystem:
             messagebox.showerror("Lỗi Khởi Tạo", str(e))
             raise
 
-    def load_and_merge_data(self, items_path, usage_path):
+    # UI Construction
+    def load_and_merge_data(self, items_path, usage_path): 
         try:
             items_df = pd.read_csv(items_path)
             usage_df = pd.read_csv(usage_path)
@@ -60,6 +70,8 @@ class EnhancedItemRecommendationSystem:
             raise
 
     def prepare_recommendation_model(self):
+
+
         self.knn_classifier = KNeighborsClassifier(n_neighbors=5)
         feature_columns = [
             'sức_công', 'phòng_thủ', 'kháng_phép', 
@@ -78,7 +90,8 @@ class EnhancedItemRecommendationSystem:
         self.popularity_bins = pd.qcut(popularity_scores, q=5, labels=['E', 'D', 'C', 'B', 'A'])
         
         self.knn_classifier.fit(X_scaled, self.popularity_bins)
-
+ 
+    # Model Operations
     def calculate_model_accuracy(self):
         feature_columns = [
             'sức_công', 'phòng_thủ', 'kháng_phép', 
@@ -126,7 +139,9 @@ class EnhancedItemRecommendationSystem:
             messagebox.showerror("Lỗi Gợi Ý", str(e))
             return pd.DataFrame(), None
 
+# Class 2: View/Controller 
 class EnhancedRecommendationApp:
+    # Core Setup
     def __init__(self, master):
         self.master = master
         self.master.title("Hệ Thống Gợi Ý Vật Phẩm Nâng Cao")
@@ -155,6 +170,7 @@ class EnhancedRecommendationApp:
         # Create interface
         self.create_interface()
 
+    # UI Construction
     def create_interface(self):
         # Apply modern theme and colors
         self.style.configure('Custom.TFrame', background='#f0f0f5')
@@ -271,11 +287,7 @@ class EnhancedRecommendationApp:
         self.canvas = FigureCanvasTkAgg(self.figure, master=container)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, pady=5)
 
-    def update_accuracy_graph(self):
-        self.accuracy_plot.clear()
-        history = self.recommender.accuracy_history
-        self.accuracy_plot.plot(range(1, len(history) + 1), history, marker='o')
-        self.accuracy_plot.set_title('Lịch Sử Độ Chính Xác')
+    # Event Handlers
     def get_recommendations(self):
         try:
             input_features = [var.get() for var in self.input_vars.values()]
@@ -294,7 +306,6 @@ class EnhancedRecommendationApp:
             messagebox.showinfo("Phân Loại Vật Phẩm", f"Xếp hạng dự đoán: {predicted_class}")
         except Exception as e:
             messagebox.showerror("Lỗi", str(e))
-
 
     def update_recommendations_display(self, recommended_items):
         for item in self.tree.get_children():
@@ -317,86 +328,13 @@ class EnhancedRecommendationApp:
                 f"{row['suitability']:.1f}%"
             ))
 
-    def save_recommendation_board(self):
-        if not os.path.exists('saved_boards'):
-            os.makedirs('saved_boards')
-            
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"recommendation_board_{timestamp}.json"
-        
-        board_data = {
-            'recommendations': [],
-            'input_parameters': {},
-            'accuracy': self.accuracy_var.get(),
-            'timestamp': timestamp
-        }
-        
-        for item in self.tree.get_children():
-            values = self.tree.item(item)['values']
-            board_data['recommendations'].append({
-                'rank': values[0],
-                'name': values[1],
-                'rarity': values[2],
-                'attack': values[3],
-                'defense': values[4],
-                'magic_resist': values[5],
-                'price': values[6],
-                'rating': values[7],
-                'frequency': values[8],
-                'suitability': values[9]
-            })
-        
-        for key, var in self.input_vars.items():
-            board_data['input_parameters'][key] = var.get()
-        
-        with open(f'saved_boards/{filename}', 'w', encoding='utf-8') as f:
-            json.dump(board_data, f, ensure_ascii=False, indent=2)
-            
-        messagebox.showinfo("Thành Công", f"Đã lưu bảng gợi ý: {filename}")
+    def update_accuracy_graph(self):
+        self.accuracy_plot.clear()
+        history = self.recommender.accuracy_history
+        self.accuracy_plot.plot(range(1, len(history) + 1), history, marker='o')
+        self.accuracy_plot.set_title('Lịch Sử Độ Chính Xác')
 
-    def show_saved_boards(self):
-        if not os.path.exists('saved_boards'):
-            messagebox.showinfo("Thông Báo", "Chưa có bảng gợi ý nào được lưu")
-            return
-
-        boards_window = tk.Toplevel(self.master)
-        boards_window.title("Bảng Gợi Ý Đã Lưu")
-        boards_window.geometry("800x600")
-
-        boards_frame = ttk.Frame(boards_window)
-        boards_frame.pack(fill='both', expand=True, padx=10, pady=10)
-
-        boards_list = tk.Listbox(
-            boards_frame,
-            font=('Helvetica', 10),
-            selectmode='single'
-        )
-        boards_list.pack(side='left', fill='both', expand=True)
-
-        scrollbar = ttk.Scrollbar(boards_frame, orient='vertical', command=boards_list.yview)
-        scrollbar.pack(side='right', fill='y')
-        boards_list.configure(yscrollcommand=scrollbar.set)
-
-        saved_boards = glob.glob('saved_boards/*.json')
-        for board in saved_boards:
-            boards_list.insert('end', os.path.basename(board))
-
-        def load_selected_board():
-            selection = boards_list.curselection()
-            if selection:
-                filename = boards_list.get(selection[0])
-                self.load_recommendation_board(filename)
-                boards_window.destroy()
-
-        # Đảm bảo nút "Tải Bảng Gợi Ý" được hiển thị và đóng cửa sổ
-        load_button = ttk.Button(
-            boards_window,
-            text="Tải Bảng Gợi Ý",
-            command=load_selected_board
-        )
-        load_button.pack(pady=10)
-
-
+   # Visualization Features
     def show_visualizations(self):
         viz_window = tk.Toplevel(self.master)
         viz_window.title("Phân Tích Dữ Liệu Chi Tiết")
@@ -543,37 +481,12 @@ class EnhancedRecommendationApp:
         canvas6 = FigureCanvasTkAgg(fig6, master=history_frame)
         canvas6.draw()
         canvas6.get_tk_widget().pack(fill='both', expand=True)
-    def save_chart(self, figure, default_name):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_name = f"{default_name}_{timestamp}"
-        
-        file_types = [
-            ('PNG files', '*.png'),
-            ('JPEG files', '*.jpg'),
-            ('PDF files', '*.pdf'),
-            ('SVG files', '*.svg')
-        ]
-        
-        filename = tk.filedialog.asksaveasfilename(
-            defaultextension='.png',
-            filetypes=file_types,
-            initialfile=default_name,
-            title="Lưu Biểu Đồ"
-        )
-        
-        if filename:
-            figure.savefig(filename, bbox_inches='tight', dpi=300)
-            messagebox.showinfo(
-                "Thành Công", 
-                f"Đã lưu biểu đồ tại:\n{filename}"
-            )
         save_btn6 = ttk.Button(
             history_frame,
             text="💾 Lưu Biểu Đồ",
             command=lambda: self.save_chart(fig6, "accuracy_history")
         )
         save_btn6.pack(pady=5)
-        
     def show_metrics_comparison(self):
         metrics_window = tk.Toplevel(self.master)
         metrics_window.title("So Sánh Các Chỉ Số Đánh Giá")
@@ -786,17 +699,152 @@ class EnhancedRecommendationApp:
         canvas = FigureCanvasTkAgg(fig, master=weights_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
+
+    def save_chart(self, figure, default_name):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_name = f"{default_name}_{timestamp}"
+        
+        file_types = [
+            ('PNG files', '*.png'),
+            ('JPEG files', '*.jpg'),
+            ('PDF files', '*.pdf'),
+            ('SVG files', '*.svg')
+        ]
+        
+        filename = tk.filedialog.asksaveasfilename(
+            defaultextension='.png',
+            filetypes=file_types,
+            initialfile=default_name,
+            title="Lưu Biểu Đồ"
+        )
+        
+        if filename:
+            figure.savefig(filename, bbox_inches='tight', dpi=300)
+            messagebox.showinfo(
+                "Thành Công", 
+                f"Đã lưu biểu đồ tại:\n{filename}"
+            )
+
+    # Data Management
+    def save_recommendation_board(self):
+        if not os.path.exists('saved_boards'):
+            os.makedirs('saved_boards')
+            
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"recommendation_board_{timestamp}.json"
+        
+        board_data = {
+            'recommendations': [],
+            'input_parameters': {},
+            'accuracy': self.accuracy_var.get(),
+            'timestamp': timestamp
+        }
+        
+        for item in self.tree.get_children():
+            values = self.tree.item(item)['values']
+            board_data['recommendations'].append({
+                'rank': values[0],
+                'name': values[1],
+                'rarity': values[2],
+                'attack': values[3],
+                'defense': values[4],
+                'magic_resist': values[5],
+                'price': values[6],
+                'rating': values[7],
+                'frequency': values[8],
+                'suitability': values[9]
+            })
+        
+        for key, var in self.input_vars.items():
+            board_data['input_parameters'][key] = var.get()
+        
+        with open(f'saved_boards/{filename}', 'w', encoding='utf-8') as f:
+            json.dump(board_data, f, ensure_ascii=False, indent=2)
+            
+        messagebox.showinfo("Thành Công", f"Đã lưu bảng gợi ý: {filename}")
+
+    def show_saved_boards(self):
+        if not os.path.exists('saved_boards'):
+            messagebox.showinfo("Thông Báo", "Chưa có bảng gợi ý nào được lưu")
+            return
+
+        boards_window = tk.Toplevel(self.master)
+        boards_window.title("Bảng Gợi Ý Đã Lưu")
+        boards_window.geometry("800x600")
+
+        boards_frame = ttk.Frame(boards_window)
+        boards_frame.pack(fill='both', expand=True, padx=10, pady=10)
+
+        boards_list = tk.Listbox(
+            boards_frame,
+            font=('Helvetica', 10),
+            selectmode='single'
+        )
+        boards_list.pack(side='left', fill='both', expand=True)
+
+        scrollbar = ttk.Scrollbar(boards_frame, orient='vertical', command=boards_list.yview)
+        scrollbar.pack(side='right', fill='y')
+        boards_list.configure(yscrollcommand=scrollbar.set)
+
+        saved_boards = glob.glob('saved_boards/*.json')
+        for board in saved_boards:
+            boards_list.insert('end', os.path.basename(board))
+
+        def load_selected_board():
+            selection = boards_list.curselection()
+            if selection:
+                filename = boards_list.get(selection[0])
+                self.load_recommendation_board(filename)
+                boards_window.destroy()
+
+        # Đảm bảo nút "Tải Bảng Gợi Ý" được hiển thị và đóng cửa sổ
+        load_button = ttk.Button(
+            boards_window,
+            text="Tải Bảng Gợi Ý",
+            command=load_selected_board
+        )
+        load_button.pack(pady=10)
+
+    def load_recommendation_board(self, filename):
+        try:
+            with open(f'saved_boards/{filename}', 'r', encoding='utf-8') as f:
+                board_data = json.load(f)
+            
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+            
+            for rec in board_data['recommendations']:
+                self.tree.insert('', 'end', values=(
+                    rec['rank'],
+                    rec['name'],
+                    rec['rarity'],
+                    rec['attack'],
+                    rec['defense'],
+                    rec['magic_resist'],
+                    rec['price'],
+                    rec['rating'],
+                    rec['frequency'],
+                    rec['suitability']
+                ))
+            
+            for key, value in board_data['input_parameters'].items():
+                self.input_vars[key].set(value)
+            
+            self.accuracy_var.set(board_data['accuracy'])
+            messagebox.showinfo("Thành Công", "Đã tải bảng gợi ý")
+            
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Không thể tải bảng gợi ý: {str(e)}")
+
     def update_model_parameters(self):
         self.recommender.knn_classifier.n_neighbors = 7  # Ví dụ cập nhật k
         self.recommender.prepare_recommendation_model()
         messagebox.showinfo("Thành Công", "Đã cập nhật thông số mô hình")
 
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = EnhancedRecommendationApp(root)
     root.mainloop()
-
 
 
 
