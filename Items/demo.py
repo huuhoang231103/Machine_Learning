@@ -7,12 +7,14 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import GridSearchCV
 
 # Visualization
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from sklearn.ensemble import RandomForestClassifier
 
 # GUI & System
 import tkinter as tk
@@ -47,7 +49,16 @@ class EnhancedItemRecommendationSystem:
                 right_on='item_id',
                 how='left'
             )
-            
+            # Thêm sau dòng merged_df = pd.merge():
+            merged_df['power_score'] = merged_df['sức_công'] * merged_df['độ_bền']
+            merged_df['defense_score'] = merged_df['phòng_thủ'] + merged_df['kháng_phép']
+            merged_df['value_ratio'] = merged_df['đánh_giá_của_người_chơi'] / merged_df['giá']
+
+            scaler = MinMaxScaler()
+            merged_df[['power_score', 'defense_score', 'value_ratio']] = scaler.fit_transform(
+                merged_df[['power_score', 'defense_score', 'value_ratio']]
+            )
+
             merged_df['đánh_giá_của_người_chơi'] = merged_df['đánh_giá_của_người_chơi'].fillna(merged_df['đánh_giá_của_người_chơi'].median())
             merged_df['Tần Suất Sử Dụng (Tháng)'] = merged_df['Tần Suất Sử Dụng (Tháng)'].fillna(merged_df['Tần Suất Sử Dụng (Tháng)'].median())
             merged_df['điểm_số_meta'] = merged_df['điểm_số_meta'].fillna(merged_df['điểm_số_meta'].median())
@@ -58,7 +69,14 @@ class EnhancedItemRecommendationSystem:
                 0.3 * (merged_df['điểm_số_meta'] / 100)
             )
             
-            merged_df['popularity_score'] = merged_df['popularity_score'].fillna(merged_df['popularity_score'].median())
+            # Thay thế đoạn tính popularity_score cũ bằng:
+            merged_df['popularity_score'] = (
+                0.35 * merged_df['đánh_giá_của_người_chơi'] +
+                0.25 * (merged_df['Tần Suất Sử Dụng (Tháng)'] / merged_df['Tần Suất Sử Dụng (Tháng)'].max()) +
+                0.25 * (merged_df['điểm_số_meta'] / 100) +
+                0.15 * merged_df['value_ratio']
+            )
+
             
             return merged_df
             
@@ -70,9 +88,13 @@ class EnhancedItemRecommendationSystem:
             raise
 
     def prepare_recommendation_model(self):
-
-
-        self.knn_classifier = KNeighborsClassifier(n_neighbors=5)
+        self.knn_classifier = KNeighborsClassifier(
+            n_neighbors=7,
+            weights='distance',
+            metric='minkowski',
+            p=2,
+            algorithm='auto'
+        )
         feature_columns = [
             'sức_công', 'phòng_thủ', 'kháng_phép', 
             'giá', 'độ_bền', 'đánh_giá_của_người_chơi',
@@ -89,6 +111,23 @@ class EnhancedItemRecommendationSystem:
         popularity_scores = self.items_df['popularity_score']
         self.popularity_bins = pd.qcut(popularity_scores, q=5, labels=['E', 'D', 'C', 'B', 'A'])
         
+        param_grid = {
+            'n_neighbors': [3, 5, 7, 9, 11],
+            'weights': ['uniform', 'distance'],
+            'metric': ['euclidean', 'manhattan', 'minkowski']
+        }
+
+        grid_search = GridSearchCV(
+            KNeighborsClassifier(),
+            param_grid,
+            cv=5,
+            scoring='accuracy'
+        )
+
+        X_scaled = self.feature_scaler.transform(X)
+        grid_search.fit(X_scaled, self.popularity_bins)
+        self.knn_classifier = grid_search.best_estimator_
+
         self.knn_classifier.fit(X_scaled, self.popularity_bins)
  
     # Model Operations
@@ -145,8 +184,13 @@ class EnhancedRecommendationApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Hệ Thống Gợi Ý Vật Phẩm Nâng Cao")
-        self.master.geometry("1600x900")
         
+            # Thêm các dòng này
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        self.master.geometry(f"{screen_width}x{screen_height}+0+0")
+        self.master.state('zoomed')  # Với Windows
+
         # Initialize variables
         self.accuracy_var = tk.StringVar(value="Độ Chính Xác: N/A")
         self.input_vars = {
@@ -242,7 +286,11 @@ class EnhancedRecommendationApp:
             command=self.show_metrics_comparison
         ).pack(fill='x', pady=5)
 
-
+        ttk.Button(
+            button_frame,
+            text="📂 Tải Bảng Gợi Ý",
+            command=self.show_saved_boards
+        ).pack(fill='x', pady=5)
         # Right panel
         right_panel = ttk.Frame(main_container)
         right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
@@ -338,7 +386,11 @@ class EnhancedRecommendationApp:
     def show_visualizations(self):
         viz_window = tk.Toplevel(self.master)
         viz_window.title("Phân Tích Dữ Liệu Chi Tiết")
-        viz_window.geometry("1200x800")
+        # Thêm code để làm full màn hình
+        screen_width = viz_window.winfo_screenwidth()
+        screen_height = viz_window.winfo_screenheight()
+        viz_window.geometry(f"{screen_width}x{screen_height}+0+0")
+        viz_window.state('zoomed')
 
         notebook = ttk.Notebook(viz_window)
         notebook.pack(fill='both', expand=True, padx=10, pady=10)
@@ -347,7 +399,7 @@ class EnhancedRecommendationApp:
         confusion_frame = ttk.Frame(notebook)
         notebook.add(confusion_frame, text="Ma Trận Nhầm Lẫn")
         
-        fig1 = Figure(figsize=(12, 8))
+        fig1 = Figure(figsize=(16, 12))
         ax1 = fig1.add_subplot(111)
         cm = confusion_matrix(self.recommender.popularity_bins, 
                         self.recommender.knn_classifier.predict(
@@ -373,7 +425,7 @@ class EnhancedRecommendationApp:
         correlation_frame = ttk.Frame(notebook)
         notebook.add(correlation_frame, text="Tương Quan Đặc Trưng")
         
-        fig2 = Figure(figsize=(12, 8))
+        fig2 = Figure(figsize=(16, 12))
         ax2 = fig2.add_subplot(111)
         numeric_cols = ['sức_công', 'phòng_thủ', 'kháng_phép', 'giá', 'độ_bền']
         corr = self.recommender.items_df[numeric_cols].corr()
@@ -394,7 +446,7 @@ class EnhancedRecommendationApp:
         rarity_frame = ttk.Frame(notebook)
         notebook.add(rarity_frame, text="Phân Bố Độ Hiếm")
         
-        fig3 = Figure(figsize=(12, 8))
+        fig3 = Figure(figsize=(16, 12))
         ax3 = fig3.add_subplot(111)
         rarity_counts = self.recommender.items_df['độ_hiếm'].value_counts()
         bars = ax3.bar(rarity_counts.index, rarity_counts.values, color=plt.cm.viridis(np.linspace(0, 1, len(rarity_counts))))
@@ -420,7 +472,7 @@ class EnhancedRecommendationApp:
         ranking_frame = ttk.Frame(notebook)
         notebook.add(ranking_frame, text="Phân Bố Xếp Hạng")
         
-        fig4 = Figure(figsize=(12, 8))
+        fig4 = Figure(figsize=(16, 12))
         ax4 = fig4.add_subplot(111)
         popularity_counts = self.recommender.popularity_bins.value_counts()
         ax4.pie(popularity_counts, labels=popularity_counts.index, autopct='%1.1f%%',
@@ -440,20 +492,39 @@ class EnhancedRecommendationApp:
         # 5. Trọng Số Đặc Trưng
         importance_frame = ttk.Frame(notebook)
         notebook.add(importance_frame, text="Trọng Số Đặc Trưng")
-        
-        fig5 = Figure(figsize=(12, 8))
+
+        fig5 = Figure(figsize=(16, 12))
         ax5 = fig5.add_subplot(111)
-        features = ['Sức công', 'Phòng thủ', 'Kháng phép', 'Giá', 'Độ bền']
-        importance = [0.25, 0.20, 0.20, 0.15, 0.20]
-        bars = ax5.bar(features, importance, color=plt.cm.Set2(np.linspace(0, 1, len(features))))
-        ax5.set_title('Trọng Số Các Đặc Trưng', pad=20, fontsize=14)
-        ax5.set_ylabel('Trọng số')
-        
+
+        features = ['sức_công', 'phòng_thủ', 'kháng_phép', 'giá', 'độ_bền', 
+                'đánh_giá_của_người_chơi', 'Tần Suất Sử Dụng (Tháng)', 'điểm_số_meta']
+
+        X = self.recommender.items_df[features]
+        y = self.recommender.popularity_bins
+
+        from sklearn.ensemble import RandomForestClassifier
+        rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+        rf_model.fit(X, y)
+
+        importance_scores = rf_model.feature_importances_
+        importance_scores = importance_scores / importance_scores.sum()
+
+        feature_importance = pd.DataFrame({
+            'feature': features,
+            'importance': importance_scores
+        })
+        feature_importance = feature_importance.sort_values('importance', ascending=True)
+
+        bars = ax5.barh(feature_importance['feature'], feature_importance['importance'], 
+                        color=plt.cm.viridis(np.linspace(0, 1, len(features))))
+        ax5.set_title('Trọng Số Các Đặc Trưng (Random Forest)', pad=20, fontsize=14)
+        ax5.set_xlabel('Mức độ quan trọng')
+
         for bar in bars:
-            height = bar.get_height()
-            ax5.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{height:.2%}', ha='center', va='bottom')
-        
+            width = bar.get_width()
+            ax5.text(width, bar.get_y() + bar.get_height()/2,
+                    f'{width:.1%}', ha='left', va='center')
+
         canvas5 = FigureCanvasTkAgg(fig5, master=importance_frame)
         canvas5.draw()
         canvas5.get_tk_widget().pack(fill='both', expand=True)
@@ -463,11 +534,12 @@ class EnhancedRecommendationApp:
             command=lambda: self.save_chart(fig5, "feature_weights")
         )
         save_btn5.pack(pady=5)
+
         # 6. Lịch Sử Độ Chính Xác
         history_frame = ttk.Frame(notebook)
         notebook.add(history_frame, text="Lịch Sử Độ Chính Xác")
         
-        fig6 = Figure(figsize=(12, 8))
+        fig6 = Figure(figsize=(16, 12))
         ax6 = fig6.add_subplot(111)
         history = self.recommender.accuracy_history
         if history:
@@ -729,39 +801,72 @@ class EnhancedRecommendationApp:
     def save_recommendation_board(self):
         if not os.path.exists('saved_boards'):
             os.makedirs('saved_boards')
+                
+        # Tạo cửa sổ đặt tên
+        name_window = tk.Toplevel(self.master)
+        name_window.title("Đặt Tên Bảng Gợi Ý")
+        name_window.geometry("400x150")
+        
+        ttk.Label(
+            name_window, 
+            text="Nhập tên cho bảng gợi ý:",
+            font=('Helvetica', 10)
+        ).pack(pady=10)
+        
+        name_var = tk.StringVar()
+        name_entry = ttk.Entry(
+            name_window,
+            textvariable=name_var,
+            width=40
+        )
+        name_entry.pack(pady=10)
+        
+        def save_with_name():
+            board_name = name_var.get().strip()
+            if not board_name:
+                messagebox.showwarning("Cảnh Báo", "Vui lòng nhập tên cho bảng gợi ý!")
+                return
+                
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{board_name}_{timestamp}.json"
             
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"recommendation_board_{timestamp}.json"
-        
-        board_data = {
-            'recommendations': [],
-            'input_parameters': {},
-            'accuracy': self.accuracy_var.get(),
-            'timestamp': timestamp
-        }
-        
-        for item in self.tree.get_children():
-            values = self.tree.item(item)['values']
-            board_data['recommendations'].append({
-                'rank': values[0],
-                'name': values[1],
-                'rarity': values[2],
-                'attack': values[3],
-                'defense': values[4],
-                'magic_resist': values[5],
-                'price': values[6],
-                'rating': values[7],
-                'frequency': values[8],
-                'suitability': values[9]
-            })
-        
-        for key, var in self.input_vars.items():
-            board_data['input_parameters'][key] = var.get()
-        
-        with open(f'saved_boards/{filename}', 'w', encoding='utf-8') as f:
-            json.dump(board_data, f, ensure_ascii=False, indent=2)
+            board_data = {
+                'recommendations': [],
+                'input_parameters': {},
+                'accuracy': self.accuracy_var.get(),
+                'timestamp': timestamp,
+                'name': board_name
+            }
             
-        messagebox.showinfo("Thành Công", f"Đã lưu bảng gợi ý: {filename}")
+            for item in self.tree.get_children():
+                values = self.tree.item(item)['values']
+                board_data['recommendations'].append({
+                    'rank': values[0],
+                    'name': values[1],
+                    'rarity': values[2],
+                    'attack': values[3],
+                    'defense': values[4],
+                    'magic_resist': values[5],
+                    'price': values[6],
+                    'rating': values[7],
+                    'frequency': values[8],
+                    'suitability': values[9]
+                })
+            
+            for key, var in self.input_vars.items():
+                board_data['input_parameters'][key] = var.get()
+            
+            with open(f'saved_boards/{filename}', 'w', encoding='utf-8') as f:
+                json.dump(board_data, f, ensure_ascii=False, indent=2)
+                
+            messagebox.showinfo("Thành Công", f"Đã lưu bảng gợi ý: {board_name}")
+            name_window.destroy()
+        
+        ttk.Button(
+            name_window,
+            text="💾 Lưu Bảng Gợi Ý",
+            command=save_with_name
+        ).pack(pady=10)
 
     def show_saved_boards(self):
         if not os.path.exists('saved_boards'):
@@ -775,35 +880,65 @@ class EnhancedRecommendationApp:
         boards_frame = ttk.Frame(boards_window)
         boards_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
-        boards_list = tk.Listbox(
-            boards_frame,
-            font=('Helvetica', 10),
-            selectmode='single'
-        )
-        boards_list.pack(side='left', fill='both', expand=True)
+        # Tạo Treeview thay vì Listbox
+        columns = ('Tên', 'Thời gian lưu', 'Tên file')
+        tree = ttk.Treeview(boards_frame, columns=columns, show='headings')
+        
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, width=200)
+        
+        tree.pack(side='left', fill='both', expand=True)
 
-        scrollbar = ttk.Scrollbar(boards_frame, orient='vertical', command=boards_list.yview)
+        scrollbar = ttk.Scrollbar(boards_frame, orient='vertical', command=tree.yview)
         scrollbar.pack(side='right', fill='y')
-        boards_list.configure(yscrollcommand=scrollbar.set)
+        tree.configure(yscrollcommand=scrollbar.set)
 
         saved_boards = glob.glob('saved_boards/*.json')
-        for board in saved_boards:
-            boards_list.insert('end', os.path.basename(board))
+        for board_path in saved_boards:
+            with open(board_path, 'r', encoding='utf-8') as f:
+                board_data = json.load(f)
+                filename = os.path.basename(board_path)
+                timestamp = datetime.strptime(board_data.get('timestamp', ''), "%Y%m%d_%H%M%S")
+                formatted_time = timestamp.strftime("%d/%m/%Y %H:%M:%S")
+                tree.insert('', 'end', values=(
+                    board_data.get('name', 'Không có tên'),
+                    formatted_time,
+                    filename
+                ))
 
         def load_selected_board():
-            selection = boards_list.curselection()
+            selection = tree.selection()
             if selection:
-                filename = boards_list.get(selection[0])
+                item = tree.item(selection[0])
+                filename = item['values'][2]
                 self.load_recommendation_board(filename)
                 boards_window.destroy()
 
-        # Đảm bảo nút "Tải Bảng Gợi Ý" được hiển thị và đóng cửa sổ
-        load_button = ttk.Button(
-            boards_window,
-            text="Tải Bảng Gợi Ý",
+        button_frame = ttk.Frame(boards_window)
+        button_frame.pack(fill='x', pady=10)
+
+        ttk.Button(
+            button_frame,
+            text="📂 Tải Bảng Gợi Ý",
             command=load_selected_board
-        )
-        load_button.pack(pady=10)
+        ).pack(side='left', padx=5)
+
+        ttk.Button(
+            button_frame,
+            text="❌ Xóa Bảng Gợi Ý",
+            command=lambda: self.delete_saved_board(tree)
+        ).pack(side='left', padx=5)
+
+    def delete_saved_board(self, tree):
+        selection = tree.selection()
+        if selection:
+            item = tree.item(selection[0])
+            filename = item['values'][2]
+            if messagebox.askyesno("Xác nhận", f"Bạn có chắc muốn xóa bảng gợi ý này?"):
+                os.remove(f'saved_boards/{filename}')
+                tree.delete(selection[0])
+                messagebox.showinfo("Thành công", "Đã xóa bảng gợi ý")
 
     def load_recommendation_board(self, filename):
         try:
@@ -835,6 +970,7 @@ class EnhancedRecommendationApp:
             
         except Exception as e:
             messagebox.showerror("Lỗi", f"Không thể tải bảng gợi ý: {str(e)}")
+
 
     def update_model_parameters(self):
         self.recommender.knn_classifier.n_neighbors = 7  # Ví dụ cập nhật k
