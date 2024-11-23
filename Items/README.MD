@@ -1,3 +1,4 @@
+@ -1,30 +0,0 @@
 # Machine Learning Project
 
 This repository contains various machine learning projects and implementations, focusing on classification, regression, and recommendation systems. The projects utilize popular machine learning algorithms, including K-Nearest Neighbors (KNN), as well as data manipulation and visualization libraries.
@@ -27,4 +28,3 @@ To run the projects in this repository, make sure you have Python 3.x installed 
  1. git clone https://github.com/huuhoang231103/Machine_Learning.git
  2. cd Machine_Learning
  3. python demo.py
-
